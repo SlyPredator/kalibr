@@ -1,0 +1,19 @@
+services:
+  kalibr:
+    build: .
+    container_name: kalibr
+    network_mode: host
+    privileged: true
+    volumes:
+      - ./data:/data
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev:/dev              # Allows seeing the camera after reset
+      - /run/udev:/run/udev:ro  # Helps librealsense manage device state
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+    devices:
+      - "/dev/bus/usb:/dev/bus/usb"
+    stdin_open: true
+    tty: true
+    command: /bin/bash
