@@ -1,18 +1,17 @@
 FROM osrf/ros:noetic-desktop-full
 
-
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
-	apt-get install -y \
-	git wget autoconf automake nano \
-	python3-dev python3-pip python3-scipy python3-matplotlib \
-	ipython3 python3-wxgtk4.0 python3-tk python3-igraph python3-pyx \
-	libeigen3-dev libboost-all-dev libsuitesparse-dev \
-	doxygen \
-	git cmake libfreeimage-dev libglew-dev \
+    apt-get install -y \
+    git wget autoconf automake nano \
+    python3-dev python3-pip python3-scipy python3-matplotlib \
+    ipython3 python3-wxgtk4.0 python3-tk python3-igraph python3-pyx \
+    libeigen3-dev libboost-all-dev libsuitesparse-dev \
+    doxygen \
+    git cmake libfreeimage-dev libglew-dev \
     python3-catkin-tools curl gnupg2 lsb-release \
-	libopencv-dev \
-	libpoco-dev libtbb-dev libblas-dev liblapack-dev libv4l-dev \
-	python3-catkin-tools python3-osrf-pycommon
+    libopencv-dev \
+    libpoco-dev libtbb-dev libblas-dev liblapack-dev libv4l-dev \
+    python3-catkin-tools python3-osrf-pycommon
 
 RUN mkdir -p /etc/apt/keyrings && \
 curl -sSf https://librealsense.intel.com/Debian/librealsense.pgp | tee /etc/apt/keyrings/librealsense.pgp > /dev/null && \
@@ -24,24 +23,24 @@ librealsense2-utils librealsense2-dev ros-noetic-realsense2-camera \
 ENV WORKSPACE /catkin_ws
 
 RUN mkdir -p $WORKSPACE/src && \
-	cd $WORKSPACE && \
-	catkin init && \
-	catkin config --extend /opt/ros/noetic && \
-	catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
+    cd $WORKSPACE && \
+    catkin init && \
+    catkin config --extend /opt/ros/noetic && \
+    catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+RUN apt-get update && apt-get install -y ros-noetic-mavros ros-noetic-mavros-extras && \
+    wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh && \
+    bash ./install_geographiclib_datasets.sh && \
+    rm ./install_geographiclib_datasets.sh
 
 ADD . $WORKSPACE/src/kalibr
 
-RUN	cd $WORKSPACE &&\
-	catkin build -j6
+RUN cd $WORKSPACE && \
+    catkin build -j6
 
 # This will allow for using the manual focal length if it fails to init
 # https://github.com/ethz-asl/kalibr/pull/346
 ENTRYPOINT export KALIBR_MANUAL_FOCAL_LENGTH_INIT=1 && \
-	# /bin/bash -c "source \"$WORKSPACE/devel/setup.bash\"" && \ 
+	/bin/bash -c "source \"$WORKSPACE/devel/setup.bash\"" && \ 
 	cd $WORKSPACE && \
 	/bin/bash
-
-
-
-
-
